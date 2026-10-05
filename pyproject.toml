@@ -1,0 +1,46 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "action-vision-cp5"
+version = "1.0.0"
+description = "Deteccao de acoes humanas com YOLO, U-Net e SlowFast"
+readme = "README.md"
+requires-python = ">=3.10,<3.13"
+authors = [
+  {name = "Guilherme Santos"},
+  {name = "Enricco"},
+  {name = "Gabriel"},
+  {name = "Danilo"},
+  {name = "Laura"},
+]
+dependencies = [
+  "numpy>=1.26,<3",
+  "opencv-python>=4.10,<6",
+  "PyYAML>=6,<7",
+  "torch>=2.3,<3",
+  "torchvision>=0.18,<1",
+  "ultralytics>=8.3,<9",
+  "rembg[cpu]>=2.0.67,<3",
+  "fvcore>=0.1.5",
+  "iopath>=0.1.10",
+]
+
+[project.scripts]
+action-vision = "action_vision.cli:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 110
+target-version = "py310"

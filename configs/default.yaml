@@ -1,0 +1,34 @@
+device: auto
+seed: 42
+
+yolo:
+  weights: yolo11n.pt
+  confidence: 0.35
+  iou: 0.45
+  image_size: 640
+
+unet:
+  # u2net_human usa uma U-Net aninhada pre-treinada para pessoas.
+  # Para o modelo do Teams, use backend: torchscript e informe checkpoint.
+  backend: u2net_human
+  model_name: u2net_human_seg
+  checkpoint: null
+  threshold: 0.50
+  box_margin: 0.10
+
+slowfast:
+  model: slowfast_r50
+  labels: assets/labels/kinetics400.txt
+  window_size: 32
+  stride: 16
+  alpha: 4
+  crop_size: 256
+  top_k: 3
+  person_crop: false
+
+output:
+  mask_alpha: 0.40
+  mask_color_bgr: [60, 180, 75]
+  box_color_bgr: [0, 215, 255]
+  codec: mp4v
+
