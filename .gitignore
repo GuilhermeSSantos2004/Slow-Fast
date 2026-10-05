@@ -1,0 +1,22 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.venv/
+venv/
+*.egg-info/
+.DS_Store
+tmp/
+
+# Pesos baixados automaticamente
+*.pt
+*.pth
+*.onnx
+models/*
+!models/.gitkeep
+
+# Resultados locais (as evidencias finais versionadas ficam em docs/)
+outputs/*
+!outputs/.gitkeep
+assets/videos/*
+!assets/videos/.gitkeep
