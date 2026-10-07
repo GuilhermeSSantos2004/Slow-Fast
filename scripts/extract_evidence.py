@@ -1,4 +1,4 @@
-"""Extrai tres quadros igualmente espacados de cada video anotado."""
+"""Extrai inicio, meio e fim de cada video anotado (processamento offline)."""
 
 from __future__ import annotations
 
@@ -13,9 +13,7 @@ def extract(video_path: Path, output_dir: Path) -> list[Path]:
     if not capture.isOpened():
         raise FileNotFoundError(video_path)
     total = int(capture.get(cv2.CAP_PROP_FRAME_COUNT))
-    # As tres amostras ficam depois da primeira janela temporal de 32 quadros,
-    # de modo que caixa, mascara e acao aparecam juntas na evidencia.
-    indexes = sorted({max(0, round((total - 1) * fraction)) for fraction in (0.50, 0.75, 1.00)})
+    indexes = sorted({max(0, round((total - 1) * fraction)) for fraction in (0.00, 0.50, 1.00)})
     output_dir.mkdir(parents=True, exist_ok=True)
     created: list[Path] = []
     for number, frame_index in enumerate(indexes, start=1):

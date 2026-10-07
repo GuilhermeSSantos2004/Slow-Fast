@@ -20,3 +20,5 @@ outputs/*
 !outputs/.gitkeep
 assets/videos/*
 !assets/videos/.gitkeep
+!assets/videos/video_1_archery.mp4
+!assets/videos/video_2_theatre.mp4
