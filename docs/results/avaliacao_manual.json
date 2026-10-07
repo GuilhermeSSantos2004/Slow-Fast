@@ -1,0 +1,12 @@
+{
+  "video_1_archery": {
+    "0": {"caixa": "sim", "parecer": "Pessoa principal localizada; contorno parcial, com objetos/fundo. Preparação; ação correta."},
+    "40": {"caixa": "sim", "parecer": "Caixa acompanha o arqueiro; máscara parcial. Mira; ação correta."},
+    "79": {"caixa": "sim", "parecer": "Caixa estável; parte do corpo fora do quadro e máscara incompleta. Recuperação; classe permanece."}
+  },
+  "video_2_theatre": {
+    "0": {"caixa": "não", "parecer": "Pessoa parcial e borrada; caixa e máscara ausentes. Tango aproxima dança, sem acertar o gênero."},
+    "40": {"caixa": "sim", "parecer": "Bailarina localizada; máscara cobre só parte do contorno. A classe award é um erro."},
+    "79": {"caixa": "não", "parecer": "Seleciona participante ao fundo, não a bailarina. Máscara ausente; tango não é flamenco."}
+  }
+}

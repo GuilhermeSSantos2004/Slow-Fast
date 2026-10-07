@@ -1,0 +1,90 @@
+[
+  {
+    "acao": "archery",
+    "confianca": 1.0,
+    "frame_inicial": 0,
+    "frame_final": 31,
+    "inicio_s": 0.0,
+    "fim_s": 4.0,
+    "top_k": [
+      {
+        "acao": "archery",
+        "confianca": 1.0
+      },
+      {
+        "acao": "throwing axe",
+        "confianca": 4.130389911113775e-25
+      },
+      {
+        "acao": "playing paintball",
+        "confianca": 1.6859367325292314e-27
+      }
+    ]
+  },
+  {
+    "acao": "archery",
+    "confianca": 1.0,
+    "frame_inicial": 16,
+    "frame_final": 47,
+    "inicio_s": 2.0,
+    "fim_s": 6.0,
+    "top_k": [
+      {
+        "acao": "archery",
+        "confianca": 1.0
+      },
+      {
+        "acao": "throwing axe",
+        "confianca": 6.249353780044922e-29
+      },
+      {
+        "acao": "playing paintball",
+        "confianca": 1.559173943689156e-31
+      }
+    ]
+  },
+  {
+    "acao": "archery",
+    "confianca": 1.0,
+    "frame_inicial": 32,
+    "frame_final": 63,
+    "inicio_s": 4.0,
+    "fim_s": 8.0,
+    "top_k": [
+      {
+        "acao": "archery",
+        "confianca": 1.0
+      },
+      {
+        "acao": "throwing axe",
+        "confianca": 8.533748398296205e-28
+      },
+      {
+        "acao": "playing paintball",
+        "confianca": 6.089257844152195e-30
+      }
+    ]
+  },
+  {
+    "acao": "archery",
+    "confianca": 1.0,
+    "frame_inicial": 48,
+    "frame_final": 79,
+    "inicio_s": 6.0,
+    "fim_s": 10.0,
+    "top_k": [
+      {
+        "acao": "archery",
+        "confianca": 1.0
+      },
+      {
+        "acao": "throwing axe",
+        "confianca": 2.9374335280791026e-25
+      },
+      {
+        "acao": "playing paintball",
+        "confianca": 3.9218050421227496e-27
+      }
+    ]
+  }
+]

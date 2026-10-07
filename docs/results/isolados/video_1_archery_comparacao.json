@@ -1,0 +1,142 @@
+[
+  {
+    "frame_inicial": 0,
+    "frame_final": 31,
+    "inicio_s": 0.0,
+    "fim_s": 4.0,
+    "quadro_inteiro": [
+      {
+        "acao": "archery",
+        "confianca": 1.0
+      },
+      {
+        "acao": "throwing axe",
+        "confianca": 4.130389911113775e-25
+      },
+      {
+        "acao": "playing paintball",
+        "confianca": 1.6859367325292314e-27
+      }
+    ],
+    "recorte_pessoa": [
+      {
+        "acao": "archery",
+        "confianca": 1.0
+      },
+      {
+        "acao": "throwing axe",
+        "confianca": 2.3978247165601374e-10
+      },
+      {
+        "acao": "golf chipping",
+        "confianca": 2.143103056129192e-11
+      }
+    ],
+    "origem_caixas_recorte": "pipeline integrado"
+  },
+  {
+    "frame_inicial": 16,
+    "frame_final": 47,
+    "inicio_s": 2.0,
+    "fim_s": 6.0,
+    "quadro_inteiro": [
+      {
+        "acao": "archery",
+        "confianca": 1.0
+      },
+      {
+        "acao": "throwing axe",
+        "confianca": 6.249353780044922e-29
+      },
+      {
+        "acao": "playing paintball",
+        "confianca": 1.559173943689156e-31
+      }
+    ],
+    "recorte_pessoa": [
+      {
+        "acao": "archery",
+        "confianca": 1.0
+      },
+      {
+        "acao": "throwing axe",
+        "confianca": 3.47887357809995e-10
+      },
+      {
+        "acao": "golf driving",
+        "confianca": 8.474956847415172e-11
+      }
+    ],
+    "origem_caixas_recorte": "pipeline integrado"
+  },
+  {
+    "frame_inicial": 32,
+    "frame_final": 63,
+    "inicio_s": 4.0,
+    "fim_s": 8.0,
+    "quadro_inteiro": [
+      {
+        "acao": "archery",
+        "confianca": 1.0
+      },
+      {
+        "acao": "throwing axe",
+        "confianca": 8.533748398296205e-28
+      },
+      {
+        "acao": "playing paintball",
+        "confianca": 6.089257844152195e-30
+      }
+    ],
+    "recorte_pessoa": [
+      {
+        "acao": "archery",
+        "confianca": 0.9999995231628418
+      },
+      {
+        "acao": "throwing axe",
+        "confianca": 4.591093158978765e-07
+      },
+      {
+        "acao": "golf driving",
+        "confianca": 3.4931024739393024e-09
+      }
+    ],
+    "origem_caixas_recorte": "pipeline integrado"
+  },
+  {
+    "frame_inicial": 48,
+    "frame_final": 79,
+    "inicio_s": 6.0,
+    "fim_s": 10.0,
+    "quadro_inteiro": [
+      {
+        "acao": "archery",
+        "confianca": 1.0
+      },
+      {
+        "acao": "throwing axe",
+        "confianca": 2.9374335280791026e-25
+      },
+      {
+        "acao": "playing paintball",
+        "confianca": 3.9218050421227496e-27
+      }
+    ],
+    "recorte_pessoa": [
+      {
+        "acao": "archery",
+        "confianca": 1.0
+      },
+      {
+        "acao": "throwing axe",
+        "confianca": 4.7569571393069054e-08
+      },
+      {
+        "acao": "golf driving",
+        "confianca": 9.114209387206529e-12
+      }
+    ],
+    "origem_caixas_recorte": "pipeline integrado"
+  }
+]

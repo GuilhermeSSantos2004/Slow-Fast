@@ -47,9 +47,11 @@
   <g stroke="#7dd3fc" stroke-width="3" fill="none" marker-end="url(#arrow)">
     <path d="M195 184H248"/>
     <path d="M430 184H483"/>
-    <path d="M665 184H718"/>
+    <path d="M120 125V108H815V125"/>
+    <path d="M580 243V270H1020V243"/>
     <path d="M900 184H953"/>
   </g>
-  <text x="560" y="305" fill="#94a3b8" font-family="Arial, sans-serif" font-size="14" text-anchor="middle">Caixa + mascara + acao sao compostas sobre cada quadro do video</text>
+  <text x="450" y="103" fill="#94a3b8" font-family="Arial, sans-serif" font-size="12" text-anchor="middle">quadros originais em janelas temporais</text>
+  <text x="560" y="305" fill="#94a3b8" font-family="Arial, sans-serif" font-size="14" text-anchor="middle">Composicao offline: caixa + mascara + acao sobre os quadros da mesma janela</text>
 </svg>
 

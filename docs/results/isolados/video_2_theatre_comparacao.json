@@ -1,0 +1,142 @@
+[
+  {
+    "frame_inicial": 0,
+    "frame_final": 31,
+    "inicio_s": 0.0,
+    "fim_s": 4.0,
+    "quadro_inteiro": [
+      {
+        "acao": "tango dancing",
+        "confianca": 0.3216191232204437
+      },
+      {
+        "acao": "singing",
+        "confianca": 0.14632979035377502
+      },
+      {
+        "acao": "giving or receiving award",
+        "confianca": 0.06909921765327454
+      }
+    ],
+    "recorte_pessoa": [
+      {
+        "acao": "tango dancing",
+        "confianca": 0.422698438167572
+      },
+      {
+        "acao": "dancing ballet",
+        "confianca": 0.33574482798576355
+      },
+      {
+        "acao": "belly dancing",
+        "confianca": 0.07952477037906647
+      }
+    ],
+    "origem_caixas_recorte": "pipeline integrado"
+  },
+  {
+    "frame_inicial": 16,
+    "frame_final": 47,
+    "inicio_s": 2.0,
+    "fim_s": 6.0,
+    "quadro_inteiro": [
+      {
+        "acao": "tango dancing",
+        "confianca": 0.5533318519592285
+      },
+      {
+        "acao": "salsa dancing",
+        "confianca": 0.06581787019968033
+      },
+      {
+        "acao": "giving or receiving award",
+        "confianca": 0.06307774782180786
+      }
+    ],
+    "recorte_pessoa": [
+      {
+        "acao": "tango dancing",
+        "confianca": 0.7452236413955688
+      },
+      {
+        "acao": "dancing ballet",
+        "confianca": 0.1644236445426941
+      },
+      {
+        "acao": "belly dancing",
+        "confianca": 0.07916052639484406
+      }
+    ],
+    "origem_caixas_recorte": "pipeline integrado"
+  },
+  {
+    "frame_inicial": 32,
+    "frame_final": 63,
+    "inicio_s": 4.0,
+    "fim_s": 8.0,
+    "quadro_inteiro": [
+      {
+        "acao": "giving or receiving award",
+        "confianca": 0.29487258195877075
+      },
+      {
+        "acao": "tango dancing",
+        "confianca": 0.28464454412460327
+      },
+      {
+        "acao": "singing",
+        "confianca": 0.11067069321870804
+      }
+    ],
+    "recorte_pessoa": [
+      {
+        "acao": "tango dancing",
+        "confianca": 0.484235942363739
+      },
+      {
+        "acao": "belly dancing",
+        "confianca": 0.3383866250514984
+      },
+      {
+        "acao": "dancing ballet",
+        "confianca": 0.14633002877235413
+      }
+    ],
+    "origem_caixas_recorte": "pipeline integrado"
+  },
+  {
+    "frame_inicial": 48,
+    "frame_final": 79,
+    "inicio_s": 6.0,
+    "fim_s": 10.0,
+    "quadro_inteiro": [
+      {
+        "acao": "tango dancing",
+        "confianca": 0.6964618563652039
+      },
+      {
+        "acao": "belly dancing",
+        "confianca": 0.12783966958522797
+      },
+      {
+        "acao": "dancing ballet",
+        "confianca": 0.08753973245620728
+      }
+    ],
+    "recorte_pessoa": [
+      {
+        "acao": "tango dancing",
+        "confianca": 0.7126530408859253
+      },
+      {
+        "acao": "dancing ballet",
+        "confianca": 0.19232487678527832
+      },
+      {
+        "acao": "tap dancing",
+        "confianca": 0.04550992324948311
+      }
+    ],
+    "origem_caixas_recorte": "pipeline integrado"
+  }
+]

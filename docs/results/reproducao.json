@@ -1,0 +1,76 @@
+{
+  "python": "3.12.14",
+  "platform": "Linux-6.18.44-x86_64-with-glibc2.39",
+  "packages": {
+    "torch": "2.14.1+cpu",
+    "torchvision": "0.29.1+cpu",
+    "ultralytics": "8.4.174",
+    "segmentation-models-pytorch": "0.3.3",
+    "pytorchvideo": "0.1.5",
+    "numpy": "2.3.5"
+  },
+  "source_videos": [
+    {
+      "id": "video_1_archery",
+      "file": "archery.mp4",
+      "start_s": 0,
+      "duration_s": 10,
+      "size": "320:240",
+      "sha256": "8d029ab048f571b136a8c0afddbbac022606022ca95307a78655dbde9735a562",
+      "url": "https://dl.fbaipublicfiles.com/pytorchvideo/projects/archery.mp4",
+      "reference": "https://github.com/facebookresearch/pytorchvideo/blob/main/tutorials/torchhub_inference_tutorial.ipynb"
+    },
+    {
+      "id": "video_2_theatre",
+      "file": "theatre.webm",
+      "start_s": 1,
+      "duration_s": 10,
+      "size": "320:180",
+      "sha256": "1830e4f0c4ddf5de96695d3df5b1da80bf6c6e26382c6ced01a5fbd0ffde8612",
+      "url": "https://dl.fbaipublicfiles.com/pytorchvideo/projects/theatre.webm",
+      "reference": "https://github.com/facebookresearch/pytorchvideo/blob/main/tutorials/video_detection_example/video_detection_inference_tutorial.ipynb"
+    }
+  ],
+  "input_sha256": {
+    "assets/videos/video_1_archery.mp4": "c63af0a5f9090c6cae3908af068e87d309faaae80f1857b2f98d3777f961dcac",
+    "assets/videos/video_2_theatre.mp4": "2d54400d187d8ca8bac07b604080fa8420a3181fb5cf62829b4384651390c319"
+  },
+  "config_sha256": "63423841595c80386e22b590a77222355441a7a479e1b495143aa6960f97ed53",
+  "commands": [
+    [
+      "python",
+      "-m",
+      "action_vision",
+      "assets/videos/video_1_archery.mp4",
+      "assets/videos/video_2_theatre.mp4",
+      "--output",
+      "docs/results"
+    ],
+    [
+      "python",
+      "scripts/run_individual.py",
+      "assets/videos/video_1_archery.mp4",
+      "assets/videos/video_2_theatre.mp4",
+      "--output",
+      "docs/results/isolados"
+    ],
+    [
+      "python",
+      "scripts/extract_evidence.py",
+      "docs/results/video_1_archery_anotado.mp4",
+      "docs/results/video_2_theatre_anotado.mp4"
+    ],
+    [
+      "python",
+      "scripts/build_report.py"
+    ],
+    [
+      "python",
+      "scripts/build_demo.py"
+    ]
+  ],
+  "threads": {
+    "OMP_NUM_THREADS": "2",
+    "MKL_NUM_THREADS": "2"
+  }
+}

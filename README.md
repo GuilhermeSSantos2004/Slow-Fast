@@ -1,56 +1,72 @@
-# CP5 - Deteccao de Acoes com YOLO, U-Net e SlowFast
+# CP5 - Detecção de ações com YOLO, U-Net e SlowFast
 
-![Arquitetura do pipeline](docs/images/architecture.svg)
+![Arquitetura](docs/images/architecture.svg)
 
-Projeto da disciplina **Applied Computer Vision (2026)**. A aplicacao le videos curtos e combina tres modelos pre-treinados, sem treinamento adicional, para mostrar:
+Aplicação de **Applied Computer Vision 2026**: lê vídeos curtos e integra três modelos já treinados, sem treinamento adicional. O resultado mostra caixa de pessoa, máscara segmentada, ação e confiança. A inferência é **offline**: a ação de uma janela é projetada sobre os quadros dessa mesma janela, usando seu contexto temporal completo.
 
-- a caixa da pessoa detectada pelo **YOLO**;
-- os pixels da pessoa segmentados por uma **U-Net**;
-- a acao e a confianca estimadas pelo **SlowFast** em janelas temporais sucessivas.
+## Arquivos da entrega
 
-O processamento gera um MP4 anotado, um CSV com os dados de cada quadro e um JSON com as predicoes de cada janela. O modo opcional `--person-crop` executa o SlowFast apenas no recorte da pessoa para permitir a comparacao solicitada como extensao.
+- [Relatório revisado em PDF — 3 páginas](docs/relatorio_cp5.pdf)
+- [Demonstração com os dois vídeos e as três saídas sobrepostas](docs/demo_cp5.mp4)
+- [Vídeo 1 completo anotado: arco e flecha](docs/results/video_1_archery_anotado.mp4)
+- [Vídeo 2 completo anotado: palco / flamenco](docs/results/video_2_theatre_anotado.mp4)
+- [Resultados por quadro e janela, execuções isoladas e comparação opcional](docs/results/)
+- [Protocolo e interpretação dos experimentos](docs/PROTOCOLO_EXPERIMENTOS.md)
 
-## Entrega pronta
-
-- [Relatorio final em PDF - 3 paginas](docs/relatorio_cp5.pdf)
-- [Video demonstrativo com as tres saidas sobrepostas](docs/demo_cp5.mp4)
-- [Protocolo de experimentos](docs/PROTOCOLO_EXPERIMENTOS.md)
-
-| Video 1 - arco e flecha | Video 2 - danca em palco |
+| Arco e flecha — 5 s | Palco — 5 s |
 |---|---|
-| ![YOLO, mascara e archery](docs/images/evidencias/video_1_archery_anotado_momento_2.jpg) | ![YOLO e dancing ballet no palco](docs/images/evidencias/video_2_theatre_anotado_momento_2.jpg) |
+| ![Caixa, máscara e ação](docs/images/evidencias/video_1_archery_anotado_momento_2.jpg) | ![Bailarina e erro de classificação](docs/images/evidencias/video_2_theatre_anotado_momento_2.jpg) |
 
-Resultados medidos: o YOLO detectou pessoa em 64/64 quadros nos dois videos. O SlowFast classificou `archery` com 100% nas tres janelas do primeiro e `dancing ballet` com 88,8%, 83,7% e 75,0% no segundo. Em baixa iluminacao, a U-Net gerou mascara nao vazia em apenas 12/64 quadros; a falha foi mantida e explicada no relatorio.
+## O que foi executado
+
+Os dois trechos têm **10 s a 8 FPS, 80 quadros cada**. Foram executados os três modelos isoladamente, o pipeline integrado e a comparação SlowFast quadro inteiro × recorte da pessoa.
+
+| Medida observada | Arco e flecha | Palco |
+|---|---:|---:|
+| Quadros com detecção de pessoa | 80/80 | 78/80 |
+| Quadros com máscara integrada não vazia | 80/80 | 33/80 |
+| Quadros com máscara U-Net isolada não vazia | 80/80 | 79/80 |
+| Janelas SlowFast | 4 | 4 |
+| Momentos comparados no relatório | 0 s, 5 s, 9,88 s | 0 s, 5 s, 9,88 s |
+
+Presença de detecção/máscara não mede acurácia. No palco, as classes foram `tango dancing`, `tango dancing`, `giving or receiving award` e `tango dancing`, com 32,2%, 55,3%, 29,5% e 69,6%. A dança observada é flamenco: tango aproxima o gênero, e a previsão de premiação é um erro. Essas limitações foram preservadas e explicadas.
+
+## Matriz de requisitos do CP5
+
+| Requisito | Implementação / evidência |
+|---|---|
+| YOLO para pessoa e bounding box | `YoloPersonDetector`, filtro COCO `person` |
+| U-Net pré-treinada | **U-Net com EfficientNet-B0**, estado completo de encoder e decoder |
+| Recorte da pessoa e projeção da máscara | recortes de caixas expandidas e `project_mask` |
+| SlowFast em janelas sucessivas | 32 quadros, passo 16, α=4, última janela cobrindo o último quadro |
+| Ação e confiança por janela | MP4, CSV por quadro e JSON com intervalos e top-3 |
+| Modelos executados isoladamente | seis MP4s e tabelas em `docs/results/isolados/` |
+| Dois vídeos e três momentos de cada | trechos de entrada e seis imagens versionados |
+| Caixa, contorno e ação comparados | tabela e inspeção visual no PDF |
+| Início/término e variação de confiança | fases do arco e flecha e todas as janelas discutidas no PDF |
+| Pelo menos dois erros explicados | associação/segmentação no palco e classe incompatível |
+| Relatório em PDF, no máximo três páginas | `docs/relatorio_cp5.pdf`, conferido automaticamente |
+| Extensão opcional | quadro inteiro × recorte nas oito janelas |
+| Até cinco integrantes e parecer técnico | integrantes, responsabilidades e textos de parecer no PDF |
+| Sem treinamento adicional | somente inferência; pesos completos restaurados e U-Net em `eval()` |
+
+A U-Net padrão usa um checkpoint público independente do material do Teams. O arquivo exato da aula não foi fornecido e não foi comparado. Se o professor exigir especificamente esse checkpoint, há um backend TorchScript para integrá-lo; a documentação não apresenta o modelo público como sendo o do Teams.
 
 ## Integrantes
 
-| Nome | RM | Responsabilidade principal |
+| Nome | RM | Responsabilidade |
 |---|---:|---|
-| Guilherme Santos | 551168 | integracao, testes e documentacao |
-| Enricco | 551717 | YOLO e leitura dos videos |
-| Gabriel | 99227 | U-Net e projecao da mascara |
+| Guilherme Santos | 551168 | integração, testes e documentação |
+| Enricco | 551717 | YOLO e leitura dos vídeos |
+| Gabriel | 99227 | U-Net e projeção da máscara |
 | Danilo | 99465 | SlowFast e janelas temporais |
-| Laura | 98747 | experimentos, analise e apresentacao |
+| Laura | 98747 | experimentos, análise e apresentação |
 
-Todos os integrantes participam da analise dos resultados e do parecer final.
+Os textos de parecer estão organizados por área. Todos os integrantes devem revisá-los e participar da análise antes de enviar a entrega.
 
-## Requisitos atendidos
+## Instalação
 
-| Item do CP5 | Implementacao |
-|---|---|
-| YOLO para pessoa | `YoloPersonDetector`, classe COCO `person` |
-| U-Net no recorte | U2-Net Human Segmentation por padrao ou checkpoint TorchScript do Teams |
-| Mascara no quadro original | `project_mask`, com recorte expandido e reprojecao |
-| SlowFast em janelas | SlowFast R50/Kinetics-400, 32 quadros e stride 16 |
-| Acao e confianca | sobreposicao no video e JSON por janela |
-| Dois videos e tres momentos | protocolo e extrator automatico de evidencias |
-| Casos de falha | roteiro de oclusao, transicao, movimento e multiplas pessoas |
-| Extensao opcional | `--person-crop` |
-| Relatorio de ate 3 paginas | `docs/relatorio_cp5.pdf` |
-
-## Instalacao
-
-Recomendado: Python 3.11, Git, FFmpeg e pelo menos 8 GB de RAM. GPU CUDA e opcional, mas acelera muito o SlowFast.
+Ambiente usado na reprodução: **Python 3.12, CPU, FFmpeg e Git**. Recomenda-se pelo menos 8 GB de RAM. Instale FFmpeg e mantenha o executável no `PATH` para montar a demonstração e preparar os trechos.
 
 ```bash
 git clone https://github.com/GuilhermeSSantos2004/Slow-Fast.git
@@ -58,102 +74,106 @@ cd Slow-Fast
 python -m venv .venv
 ```
 
-No Windows:
+Ative o ambiente no Windows:
 
 ```powershell
 .venv\Scripts\activate
-python -m pip install --upgrade pip
-python -m pip install -r requirements-dev.txt
 ```
 
-No Linux/macOS:
+Ou no Linux/macOS:
 
 ```bash
 source .venv/bin/activate
+```
+
+Para o ambiente de CPU usado nos resultados:
+
+```bash
 python -m pip install --upgrade pip
-python -m pip install -r requirements-dev.txt
+python -m pip install -r requirements-cpu.txt
 ```
 
-Na primeira execucao, os pesos pre-treinados do YOLO, U2-Net Human e SlowFast sao baixados automaticamente. Nenhum modelo e treinado por este projeto.
+Para uma instalação com PyTorch já configurado para sua GPU, use `requirements-dev.txt`. O YAML aceita `device: cpu`, `cuda`, `mps` ou `auto`. CPU e GPU podem produzir pequenas diferenças numéricas.
 
-## Execucao
+Na primeira inferência, são baixados os pesos do YOLO, da U-Net e do SlowFast. A U-Net usa uma revisão fixa, verifica SHA-256 e carrega o estado completo com `strict=True` e `weights_only=True`. Não se trata de um decoder aleatório sobre um encoder ImageNet.
 
-Coloque dois videos em `assets/videos/` e execute:
+## Reproduzir a entrega inteira
+
+Os dois trechos de entrada já estão em `assets/videos/`. Execute:
 
 ```bash
-python -m action_vision \
-  assets/videos/video_1.mp4 \
-  assets/videos/video_2.mp4 \
-  --config configs/default.yaml \
-  --output outputs
+python scripts/reproduce_cp5.py
 ```
 
-Para a extensao com o recorte da pessoa:
+O comando executa os modelos, produz os resultados integrados e isolados, compara quadro/recorte, extrai seis evidências, gera o relatório e monta o vídeo demonstrativo. Os arquivos de referência em `docs/` são substituídos pelos resultados da nova execução.
+
+Para baixar novamente os vídeos públicos originais, conferir seus checksums e recriar os trechos com FFmpeg:
 
 ```bash
-python -m action_vision assets/videos/video_1.mp4 --person-crop --output outputs/recorte
+python scripts/reproduce_cp5.py --download-sources
 ```
 
-Depois, extraia tres evidencias de cada resultado:
+O manifesto [reproducao.json](docs/results/reproducao.json) registra fontes, recortes, hashes, versões e comandos. As observações visuais estão em [avaliacao_manual.json](docs/results/avaliacao_manual.json); se mudar os vídeos ou os modelos, reveja essas observações antes de gerar outro relatório.
+
+## Executar seus próprios vídeos
 
 ```bash
-python scripts/extract_evidence.py \
-  outputs/video_1_anotado.mp4 \
-  outputs/video_2_anotado.mp4
+python -m action_vision seu_video_1.mp4 seu_video_2.mp4 --config configs/default.yaml --output outputs
 ```
 
-### Usar a U-Net fornecida no Teams
+Cada vídeo deve conter ao menos 32 quadros. São gerados `nome_anotado.mp4`, `nome_frames.csv` e `nome_janelas.json`. O CSV inclui coordenadas da caixa, candidatos, área da máscara e a janela responsável pela ação exibida.
 
-O backend padrao e a **U2-Net Human Segmentation**, arquitetura aninhada da familia U-Net ja treinada para pessoas. Se o professor exigir exatamente o arquivo disponibilizado no Teams, exporte-o como TorchScript e altere o YAML:
+```bash
+python -m action_vision seu_video.mp4 --person-crop --output outputs/recorte
+python scripts/run_individual.py seu_video.mp4 --output outputs/isolados
+```
+
+A execução isolada da U-Net recebe o quadro inteiro, sem usar YOLO. Na comparação opcional, as caixas são lidas do CSV integrado, quando disponível na pasta pai, para comparar as mesmas pessoas; caso contrário, usam-se caixas do YOLO isolado. A origem fica registrada no JSON.
+
+### Checkpoint U-Net da disciplina
+
+Exporte o modelo da aula como TorchScript e ajuste a configuração:
 
 ```yaml
 unet:
   backend: torchscript
-  checkpoint: models/unet_pessoa.torchscript.pt
+  checkpoint: models/unet_teams.torchscript.pt
+  input_size: 320
   threshold: 0.50
+  box_margin: 0.10
 ```
 
-O modelo deve receber tensor RGB `N x 3 x H x W`, normalizado em `[0, 1]`, e devolver logits de mascara. Assim o restante do pipeline nao muda.
+O adaptador atual espera RGB `N × 3 × H × W`, valores em `[0,1]` e logits binários de máscara. Ajuste o tamanho e o pré/pós-processamento se o modelo do Teams tiver outro contrato; não presuma equivalência apenas pelo nome U-Net. O backend histórico U²-Net é opcional (`pip install -e '.[u2net]'`) e não é o padrão da entrega revisada.
 
-## Resultados gerados
-
-Para cada entrada `nome.mp4`, sao criados:
-
-| Arquivo | Conteudo |
-|---|---|
-| `nome_anotado.mp4` | caixa, mascara, acao e confianca sobrepostas |
-| `nome_frames.csv` | tempo, YOLO, area da mascara e ultima acao por quadro |
-| `nome_janelas.json` | classe e confianca por janela SlowFast |
-
-Videos e pesos nao sao enviados ao Git por padrao. As evidencias selecionadas e o relatorio final ficam em `docs/`.
-
-## Testes e qualidade
+## Verificações
 
 ```bash
 python -m pytest -q
 python -m ruff check src tests scripts
+python scripts/check_delivery.py
 ```
 
-Os testes cobrem validacao da configuracao, escolha da pessoa principal, reprojecao espacial da mascara, recorte temporal e cobertura da ultima janela. O GitHub Actions repete essas verificacoes em todo push e pull request.
+Os 12 testes incluem leitura/escrita real de MP4 com adaptadores simulados, cobertura da cauda para 33 e 100 quadros, ação desde o primeiro quadro, reprojeção de máscara, continuidade espacial e seleção de pessoa segmentável. Esses testes não substituem a execução com redes reais, registrada nos arquivos de resultados. O CI também confere os vídeos, seis evidências, hashes, janelas e as três páginas do PDF.
 
-## Decisoes tecnicas e limitacoes
+## Limitações observadas
 
-- Apenas a deteccao principal e segmentada. Em cenas com varias pessoas, a selecao pondera confianca e area; isso reduz alternancia, mas nao substitui rastreamento.
-- A mesma janela SlowFast pode conter o fim de uma acao e o inicio de outra. Nessa transicao, a confianca tende a cair ou a classe pode mudar.
-- Kinetics-400 limita as classes possiveis. Uma acao fora desse vocabulario sera aproximada para alguma classe conhecida.
-- O modo de quadro inteiro preserva contexto; o recorte reduz distracoes, mas pode remover objetos importantes para reconhecer a acao.
-- O custo computacional principal e o SlowFast. Em CPU, use videos curtos; em GPU, mantenha `device: auto`.
+- Uma única pessoa principal é visualizada. Continuidade por IoU e prioridade de máscara não vazia não garantem identidade em cenas com várias pessoas.
+- A máscara pode incluir fundo/objetos ou perder partes do corpo. Um recorte muda escala e proporções em relação ao quadro inteiro.
+- As janelas se sobrepõem. Uma mudança de classe pode ocorrer sem mudança real de ação; confiança alta também pode acompanhar erro.
+- No arco e flecha, a classe permanece estável entre preparação, mira e recuperação. No trecho de flamenco, não foi observado um início/término completo da dança; o relatório não atribui causalidade à variação de confiança.
+- O modo padrão preserva contexto do quadro antes do recorte central padrão do SlowFast. O modo de pessoa usa a união das caixas e pode remover objetos importantes ou incluir outra pessoa.
 
-O protocolo completo para comparar os dois videos esta em [docs/PROTOCOLO_EXPERIMENTOS.md](docs/PROTOCOLO_EXPERIMENTOS.md).
+## Fontes e licença
 
-## Fontes dos modelos
+- [YOLO — Ultralytics](https://github.com/ultralytics/ultralytics)
+- [Checkpoint completo U-Net — Aman Gupta, revisão fixa](https://github.com/amangupta143/PyTorch-Image-Segmentation/tree/d5f9ab4afd5e0f9aedaa7c1565d506e8e650f916); [licença MIT preservada](docs/licenses/unet_checkpoint_MIT.txt)
+- [Arquitetura U-Net — Segmentation Models PyTorch](https://github.com/qubvel-org/segmentation_models.pytorch)
+- [SlowFast / PyTorchVideo](https://github.com/facebookresearch/pytorchvideo)
+- [Fonte de arco e flecha](https://dl.fbaipublicfiles.com/pytorchvideo/projects/archery.mp4)
+- [Fonte do palco](https://dl.fbaipublicfiles.com/pytorchvideo/projects/theatre.webm)
 
-- [Ultralytics YOLO](https://docs.ultralytics.com/)
-- [U2-Net: Going Deeper with Nested U-Structure](https://arxiv.org/abs/2005.09007)
-- [SlowFast Networks for Video Recognition](https://arxiv.org/abs/1812.03982)
-- [PyTorchVideo](https://pytorchvideo.org/)
-- [Kinetics-400](https://www.deepmind.com/open-source/kinetics)
+Os trechos públicos são utilizados para o experimento acadêmico, com atribuição. Cada modelo, biblioteca e vídeo conserva seus próprios termos de uso.
 
-## Privacidade
+## Envio no Teams
 
-Use apenas videos autorizados. Evite publicar rostos ou locais privados sem consentimento. Resultados de modelos pre-treinados podem conter vieses e devem ser tratados como estimativas, nao como identificacao de pessoas ou prova de comportamento.
+O enunciado solicita código executável, vídeo demonstrativo e PDF de até três páginas. Envie o código deste repositório, `docs/demo_cp5.mp4` e `docs/relatorio_cp5.pdf`. O envio no Teams e a confirmação do professor sobre o modelo da aula são ações externas ao repositório. O prazo indicado no PDF original é 06/10/2026 às 23h59.
