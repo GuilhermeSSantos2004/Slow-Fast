@@ -4,6 +4,13 @@ from action_vision.processing import crop_frames, project_mask, select_primary_p
 from action_vision.types import BoundingBox, Detection
 
 
+def test_selection_keeps_overlapping_target_when_larger_person_enters():
+    previous = BoundingBox(0, 0, 10, 10)
+    target = Detection(BoundingBox(1, 0, 11, 10), 0.80)
+    newcomer = Detection(BoundingBox(20, 0, 70, 50), 0.95)
+    assert select_primary_person([target, newcomer], previous) is target
+
+
 def test_project_mask_returns_full_frame_coordinates() -> None:
     crop_mask = np.ones((2, 2), dtype=bool)
     box = BoundingBox(2, 1, 6, 5)

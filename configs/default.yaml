@@ -8,11 +8,12 @@ yolo:
   image_size: 640
 
 unet:
-  # u2net_human usa uma U-Net aninhada pre-treinada para pessoas.
+  # U-Net com encoder EfficientNet-B0 e decoder ja treinados para pessoas.
   # Para o modelo do Teams, use backend: torchscript e informe checkpoint.
-  backend: u2net_human
+  backend: unet_human
   model_name: u2net_human_seg
   checkpoint: null
+  input_size: 320
   threshold: 0.50
   box_margin: 0.10
 

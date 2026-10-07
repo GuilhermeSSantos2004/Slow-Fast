@@ -18,9 +18,10 @@ class YoloConfig:
 
 @dataclass(slots=True)
 class UnetConfig:
-    backend: str = "u2net_human"
+    backend: str = "unet_human"
     model_name: str = "u2net_human_seg"
     checkpoint: str | None = None
+    input_size: int = 320
     threshold: float = 0.50
     box_margin: float = 0.10
 
@@ -71,9 +72,21 @@ class PipelineConfig:
             raise ValueError("yolo.confidence deve estar em (0, 1].")
         if not 0.0 < self.unet.threshold < 1.0:
             raise ValueError("unet.threshold deve estar em (0, 1).")
+        if self.unet.backend not in {"unet_human", "torchscript", "u2net_human"}:
+            raise ValueError("Backend U-Net desconhecido.")
+        if self.unet.input_size <= 0 or self.unet.input_size % 32:
+            raise ValueError("unet.input_size deve ser positivo e multiplo de 32.")
+        if self.slowfast.alpha <= 0:
+            raise ValueError("slowfast.alpha deve ser positivo.")
         if self.slowfast.window_size < self.slowfast.alpha:
             raise ValueError("window_size deve ser maior ou igual a alpha.")
+        if self.slowfast.window_size != 32 or self.slowfast.alpha != 4:
+            raise ValueError("O SlowFast R50 pre-treinado desta entrega usa window_size=32 e alpha=4.")
         if self.slowfast.stride <= 0:
             raise ValueError("slowfast.stride deve ser positivo.")
+        if self.slowfast.stride > self.slowfast.window_size:
+            raise ValueError("slowfast.stride nao pode deixar lacunas entre janelas.")
+        if not 1 <= self.slowfast.top_k <= 400:
+            raise ValueError("slowfast.top_k deve estar entre 1 e 400.")
         if len(self.output.codec) != 4:
             raise ValueError("output.codec deve ter quatro caracteres.")

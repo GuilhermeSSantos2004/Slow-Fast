@@ -65,3 +65,4 @@ class ActionPrediction:
     confidence: float
     start_frame: int
     end_frame: int
+    ranked: tuple[tuple[str, float], ...] = ()

@@ -6,15 +6,38 @@ from collections.abc import Sequence
 
 import numpy as np
 
-from .types import BoundingBox, Detection
+from .types import ActionPrediction, BoundingBox, Detection
 
 
-def select_primary_person(detections: Sequence[Detection]) -> Detection | None:
+def box_iou(first: BoundingBox, second: BoundingBox) -> float:
+    width = max(0, min(first.x2, second.x2) - max(first.x1, second.x1))
+    height = max(0, min(first.y2, second.y2) - max(first.y1, second.y1))
+    intersection = width * height
+    union = first.area + second.area - intersection
+    return intersection / union if union else 0.0
+
+
+def select_primary_person(
+    detections: Sequence[Detection], previous_box: BoundingBox | None = None,
+) -> Detection | None:
     """Seleciona a pessoa combinando confianca e area para reduzir trocas."""
 
     if not detections:
         return None
+    if previous_box is not None:
+        overlapping = [item for item in detections if box_iou(item.box, previous_box) >= 0.20]
+        if overlapping:
+            return max(overlapping, key=lambda item: box_iou(item.box, previous_box) * item.confidence)
     return max(detections, key=lambda detection: detection.confidence * np.sqrt(detection.box.area))
+
+
+def prediction_for_frame(predictions: Sequence[ActionPrediction], index: int) -> ActionPrediction:
+    """No video offline, atribui a janela que cobre o quadro e tem centro mais proximo."""
+
+    covering = [item for item in predictions if item.start_frame <= index <= item.end_frame]
+    if not covering:
+        raise ValueError(f"Nenhuma janela SlowFast cobre o quadro {index}.")
+    return min(covering, key=lambda item: abs((item.start_frame + item.end_frame) / 2 - index))
 
 
 def project_mask(mask: np.ndarray, box: BoundingBox, frame_shape: tuple[int, ...]) -> np.ndarray:

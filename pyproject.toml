@@ -22,10 +22,14 @@ dependencies = [
   "torch>=2.3,<3",
   "torchvision>=0.18,<1",
   "ultralytics>=8.3,<9",
-  "rembg[cpu]>=2.0.67,<3",
+  "segmentation-models-pytorch==0.3.3",
+  "pytorchvideo==0.1.5",
   "fvcore>=0.1.5",
   "iopath>=0.1.10",
 ]
+
+[project.optional-dependencies]
+u2net = ["rembg[cpu]>=2.0.67,<3"]
 
 [project.scripts]
 action-vision = "action_vision.cli:main"

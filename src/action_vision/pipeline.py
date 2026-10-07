@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import csv
 import json
+import tempfile
 from collections import deque
 from pathlib import Path
 
@@ -11,8 +12,8 @@ import numpy as np
 
 from .config import PipelineConfig
 from .models import ActionClassifier, Detector, Segmenter
-from .processing import crop_frames, project_mask, select_primary_person
-from .types import ActionPrediction, BoundingBox
+from .processing import crop_frames, prediction_for_frame, project_mask, select_primary_person
+from .types import ActionPrediction, BoundingBox, Detection
 
 
 class VideoPipeline:
@@ -35,6 +36,7 @@ class VideoPipeline:
         detection_confidence: float,
         mask: np.ndarray | None,
         action: tuple[str, float] | None,
+        show_action: bool = True,
     ) -> np.ndarray:
         import cv2
 
@@ -57,7 +59,9 @@ class VideoPipeline:
                 2,
                 cv2.LINE_AA,
             )
-        label, confidence = action or ("coletando janela temporal", 0.0)
+        if not show_action:
+            return output
+        label, confidence = action or ("sem predicao", 0.0)
         action_text = f"acao: {label} | confianca: {confidence:.1%}"
         font = cv2.FONT_HERSHEY_SIMPLEX
         base_scale = 0.70
@@ -98,8 +102,10 @@ class VideoPipeline:
                 f"{self.config.slowfast.window_size}."
             )
         video_path = output_dir / f"{input_path.stem}_anotado.mp4"
+        with tempfile.NamedTemporaryFile(dir=output_dir, suffix=".mp4", delete=False) as temporary:
+            spatial_path = Path(temporary.name)
         writer = cv2.VideoWriter(
-            str(video_path),
+            str(spatial_path),
             cv2.VideoWriter_fourcc(*self.config.output.codec),
             fps,
             (width, height),
@@ -109,46 +115,59 @@ class VideoPipeline:
 
         clip_frames: deque[np.ndarray] = deque(maxlen=self.config.slowfast.window_size)
         clip_boxes: deque[BoundingBox | None] = deque(maxlen=self.config.slowfast.window_size)
-        action: tuple[str, float] | None = None
         predictions: list[ActionPrediction] = []
         frame_rows: list[dict[str, object]] = []
         frame_index = 0
+        previous_box: BoundingBox | None = None
+
+        def classify_window(end_frame: int) -> None:
+            frames_for_action = list(clip_frames)
+            if self.config.slowfast.person_crop:
+                frames_for_action = crop_frames(frames_for_action, list(clip_boxes))
+            ranked = self.classifier.classify(frames_for_action)
+            if not ranked:
+                raise RuntimeError("SlowFast nao retornou nenhuma classe.")
+            predictions.append(ActionPrediction(
+                label=ranked[0][0], confidence=ranked[0][1],
+                start_frame=end_frame + 1 - self.config.slowfast.window_size,
+                end_frame=end_frame, ranked=tuple(ranked),
+            ))
+
         try:
             while True:
                 ok, frame = capture.read()
                 if not ok:
                     break
-                primary = select_primary_person(self.detector.detect(frame))
+                detections = self.detector.detect(frame)
+                segmented = []
+                for detection in detections:
+                    candidate_box = detection.box.clip(width, height)
+                    if candidate_box.area == 0:
+                        continue
+                    expanded = candidate_box.expand(self.config.unet.box_margin, width, height)
+                    crop = frame[expanded.y1 : expanded.y2, expanded.x1 : expanded.x2]
+                    candidate_mask = project_mask(self.segmenter.segment(crop), expanded, frame.shape)
+                    segmented.append(Detection(candidate_box, detection.confidence, candidate_mask))
+                # A U-Net e executada nos recortes YOLO. Preferir uma mascara
+                # valida evita persistir em uma pessoa escura ao fundo quando
+                # ha outro candidato segmentavel; nao garante identidade.
+                with_mask = [item for item in segmented if item.mask is not None and item.mask.any()]
+                primary = select_primary_person(with_mask or segmented, previous_box)
                 box = None
                 mask = None
                 det_conf = 0.0
                 if primary is not None:
                     box = primary.box.clip(width, height)
+                    previous_box = box
                     det_conf = primary.confidence
-                    expanded = box.expand(self.config.unet.box_margin, width, height)
-                    crop = frame[expanded.y1 : expanded.y2, expanded.x1 : expanded.x2]
-                    if crop.size:
-                        crop_mask = self.segmenter.segment(crop)
-                        mask = project_mask(crop_mask, expanded, frame.shape)
+                    mask = primary.mask
                 clip_frames.append(frame.copy())
                 clip_boxes.append(box)
                 ready = len(clip_frames) == self.config.slowfast.window_size
                 due = ready and (frame_index + 1 - self.config.slowfast.window_size) % self.config.slowfast.stride == 0
                 if due:
-                    frames_for_action = list(clip_frames)
-                    if self.config.slowfast.person_crop:
-                        frames_for_action = crop_frames(frames_for_action, list(clip_boxes))
-                    ranked = self.classifier.classify(frames_for_action)
-                    action = ranked[0]
-                    predictions.append(
-                        ActionPrediction(
-                            label=action[0],
-                            confidence=action[1],
-                            start_frame=frame_index + 1 - self.config.slowfast.window_size,
-                            end_frame=frame_index,
-                        )
-                    )
-                writer.write(self._annotate(frame, box, det_conf, mask, action))
+                    classify_window(frame_index)
+                writer.write(self._annotate(frame, box, det_conf, mask, None, show_action=False))
                 frame_rows.append(
                     {
                         "frame": frame_index,
@@ -156,14 +175,54 @@ class VideoPipeline:
                         "pessoa_detectada": box is not None,
                         "confianca_yolo": round(det_conf, 5),
                         "area_mascara_px": int(mask.sum()) if mask is not None else 0,
-                        "acao": action[0] if action else "",
-                        "confianca_slowfast": round(action[1], 5) if action else 0.0,
+                        "numero_pessoas": len(detections),
+                        "candidatos_mascara_naovazia": len(with_mask),
+                        "bbox_x1": box.x1 if box else "",
+                        "bbox_y1": box.y1 if box else "",
+                        "bbox_x2": box.x2 if box else "",
+                        "bbox_y2": box.y2 if box else "",
                     }
                 )
                 frame_index += 1
+            if frame_index < self.config.slowfast.window_size:
+                raise ValueError("O video decodificado nao possui quadros suficientes para SlowFast.")
+            # Fecha a cauda mesmo quando o numero de quadros nao e multiplo do stride.
+            if not predictions or predictions[-1].end_frame != frame_index - 1:
+                classify_window(frame_index - 1)
+        except Exception:
+            spatial_path.unlink(missing_ok=True)
+            raise
         finally:
             capture.release()
             writer.release()
+
+        # Segunda passagem leve: a predicao e mostrada sobre os quadros da
+        # propria janela, inclusive o inicio. Nao simula inferencia em tempo real.
+        spatial_capture = cv2.VideoCapture(str(spatial_path))
+        final_writer = cv2.VideoWriter(
+            str(video_path), cv2.VideoWriter_fourcc(*self.config.output.codec), fps, (width, height),
+        )
+        try:
+            if not spatial_capture.isOpened() or not final_writer.isOpened():
+                raise RuntimeError("Falha ao abrir a segunda passagem do video.")
+            for index, row in enumerate(frame_rows):
+                ok, annotated = spatial_capture.read()
+                if not ok:
+                    raise RuntimeError(f"Video intermediario incompleto no quadro {index}.")
+                prediction = prediction_for_frame(predictions, index)
+                row.update({
+                    "acao": prediction.label,
+                    "confianca_slowfast": round(prediction.confidence, 5),
+                    "frame_inicial_janela": prediction.start_frame,
+                    "frame_final_janela": prediction.end_frame,
+                })
+                final_writer.write(self._annotate(
+                    annotated, None, 0.0, None, (prediction.label, prediction.confidence),
+                ))
+        finally:
+            spatial_capture.release()
+            final_writer.release()
+            spatial_path.unlink(missing_ok=True)
 
         csv_path = output_dir / f"{input_path.stem}_frames.csv"
         with csv_path.open("w", encoding="utf-8", newline="") as stream:
@@ -180,6 +239,9 @@ class VideoPipeline:
                         "confianca": item.confidence,
                         "frame_inicial": item.start_frame,
                         "frame_final": item.end_frame,
+                        "inicio_s": round(item.start_frame / fps, 3),
+                        "fim_s": round((item.end_frame + 1) / fps, 3),
+                        "top_k": [{"acao": label, "confianca": score} for label, score in item.ranked],
                     }
                     for item in predictions
                 ],
